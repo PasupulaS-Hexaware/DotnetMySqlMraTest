@@ -1,0 +1,23 @@
+FROM mcr.microsoft.com/dotnet/aspnet:3.1 AS base
+WORKDIR /app
+EXPOSE 80
+
+FROM mcr.microsoft.com/dotnet/sdk:3.1 AS build
+WORKDIR /src
+COPY ["Code/DotnetMysqlMraTest.Api/DotnetMysqlMraTest.Api.csproj", "Code/DotnetMysqlMraTest.Api/"]
+COPY ["Code/DotnetMysqlMraTest.Business/DotnetMysqlMraTest.Business.csproj", "Code/DotnetMysqlMraTest.Business/"]
+COPY ["Code/DotnetMysqlMraTest.Data/DotnetMysqlMraTest.Data.csproj", "Code/DotnetMysqlMraTest.Data/"]
+COPY ["Code/DotnetMysqlMraTest.Entities/DotnetMysqlMraTest.Entities.csproj", "Code/DotnetMysqlMraTest.Entities/"]
+COPY ["Code/DotnetMysqlMraTest.Test.Api/DotnetMysqlMraTest.Test.Api.csproj", "Code/DotnetMysqlMraTest.Test.Api/"]
+COPY ["Code/DotnetMysqlMraTest.Test.Business/DotnetMysqlMraTest.Test.Business.csproj", "Code/DotnetMysqlMraTest.Test.Business/"]
+RUN dotnet restore "Code/DotnetMysqlMraTest.Api/DotnetMysqlMraTest.Api.csproj"
+COPY . .
+WORKDIR "/src/Code/DotnetMysqlMraTest.Api"
+RUN dotnet build "DotnetMysqlMraTest.Api.csproj" -c Release -o /app/build
+
+FROM build AS publish
+RUN dotnet publish "DotnetMysqlMraTest.Api.csproj" -c Release -o /app/publish
+
+WORKDIR /src
+RUN dotnet test --results-directory /testresults --logger "trx;LogFileName=testresults.Api.trx" /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura /p:CoverletOutput=/testresults/coverage/ /p:MergeWith=/testresults/coverage/coverage.json "Code/DotnetMysqlMraTest.Test.Api/DotnetMysqlMraTest.Test.Api.csproj"
+RUN dotnet test --results-directory /testresults --logger "trx;LogFileName=testresults.Api.trx" /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura /p:CoverletOutput=/testresults/coverage/ /p:MergeWith=/testresults/coverage/coverage.json "Code/DotnetMysqlMraTest.Test.Business/DotnetMysqlMraTest.Test.Business.csproj"
