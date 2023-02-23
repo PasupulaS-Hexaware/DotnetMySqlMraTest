@@ -2,7 +2,8 @@ using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
-using DotnetMysqlMraTest.Entities.Entities;
+// using DotnetMysqlMraTest.Entities.Entities;
+using DotnetMysqlMraTest.Entities;
 using MySqlConnector;
 
 namespace DotnetMysqlMraTest.Data.Repositories
